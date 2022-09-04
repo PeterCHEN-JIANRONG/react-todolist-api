@@ -1,15 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import axios from 'axios';
 
 
 function Home() {
-  const [todos,setTodos]= useState([
-    {id:1, content:'把冰箱發霉的檸檬拿去丟', completed:false},
-    {id:2, content:'打電話叫媽媽匯款給我', completed:false},
-    {id:3, content:'整理電腦資料夾', completed:false},
-    {id:4, content:'繳電費水費瓦斯費', completed:false},
-    {id:5, content:'約vicky禮拜三泡溫泉', completed:false},
-  ]);
+  const _url = 'https://todoo.5xcamp.us/todos';
+  const [todos, setTodos]= useState([]);
   const [value,setValue] = useState(""); // todo input
   const [tabState,setTabState] = useState("all"); // tab state
   
@@ -119,7 +115,7 @@ function Home() {
               </a>
             </li>
             <li>
-              <a href="#loginPage">登出</a>
+              <a href="#">登出</a>
             </li>
           </ul>
         </nav>

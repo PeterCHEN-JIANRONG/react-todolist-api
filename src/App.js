@@ -6,6 +6,7 @@ import Login from "./component/Login"
 import Signup from "./component/Signup"
 import NotFound from "./component/NotFound"
 import { AuthContext } from "./component/Context";
+import { ProtectedRoute } from './component/ProtectedRoute';
 
 function App() {
   const [token, setToken] = useState(null);
@@ -14,7 +15,9 @@ function App() {
     <div className="App">
       <AuthContext.Provider value={{ token, setToken }}>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route element={<ProtectedRoute/>}>
+          <Route path="/" element={<Home />} />
+        </Route>
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
         <Route path="*" element={<NotFound />} />
