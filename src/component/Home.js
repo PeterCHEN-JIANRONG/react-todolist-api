@@ -64,15 +64,16 @@ function Home() {
     });
   }
 
-  function removeTodo(e, todo){
-    e.preventDefault();
-
-    axios.delete(`${url}/${todo.id}`, {headers}).then((res)=>{
-      const index = todos.findIndex(item=>item.id === todo.id);
-      const temp = [...todos];
-      temp.splice(index,1);
-      setTodos(temp);
-
+  async function removeTodo(todo, deleteType = 'single'){
+    
+    await axios.delete(`${url}/${todo.id}`, {headers}).then((res)=>{
+      if(deleteType === 'single'){
+        const index = todos.findIndex(item=>item.id === todo.id);
+        const temp = [...todos];
+        temp.splice(index,1);
+        setTodos(temp);
+        console.log('單筆刪除');
+      }
     }).catch(err=>{
       return MySwal.fire({
         icon: 'error',
@@ -81,8 +82,19 @@ function Home() {
     })
   }
 
-  function removeCompletedAll(e){
+  async function removeCompletedAll(e){
     e.preventDefault();
+
+    // 連續刪除
+    const needDeletes = todos.filter((item) => item.completed_at).map(item => {
+      return new Promise(async resolve => {
+          await removeTodo(item,'many');
+          resolve();
+      });
+    });
+    await Promise.all(needDeletes);
+
+    console.log('全部刪除完畢');
     setTodos(todos.filter(item=>!item.completed_at));
   }
 
@@ -93,7 +105,8 @@ function Home() {
       console.log(res.data);
       const index = todos.findIndex(item=>item.id === todo.id);
       todos[index] = res.data;
-      setTodos(todos);
+      setTodos([...todos]);
+
     }).catch(err=>{
       console.log(err);
       return MySwal.fire({
@@ -124,9 +137,12 @@ function Home() {
           />
           <span>{todo.content}</span>
         </label>
-        <a href="#" onClick={(e)=>removeTodo(e, todo)}>
+        <Link to="/" onClick={(e)=>{
+          e.preventDefault();
+          removeTodo(todo);
+        }}>
           <i className="fa fa-times"></i>
-        </a>
+        </Link>
       </li>
     )
   }
