@@ -24,6 +24,7 @@ function Home() {
 
 
   function getTodo(){
+    console.log('重新取得todo')
     axios.get(url, {headers}).then((res)=>{
       setTodos(res.data.todos);
     }).catch(err=>{
@@ -33,6 +34,7 @@ function Home() {
       })
     })
   }
+
 
   function addTodo(e){
     e.preventDefault();
@@ -51,7 +53,7 @@ function Home() {
     }
     
     axios.post(url,{todo},{headers}).then((res)=>{
-      getTodo();
+      setTodos([res.data,...todos]);
       setValue('');
       document.getElementById("todoInput").focus();
     }).catch((err)=>{
@@ -64,18 +66,41 @@ function Home() {
 
   function removeTodo(e, todo){
     e.preventDefault();
-    setTodos(todos.filter(item=>item !== todo));
+
+    axios.delete(`${url}/${todo.id}`, {headers}).then((res)=>{
+      const index = todos.findIndex(item=>item.id === todo.id);
+      const temp = [...todos];
+      temp.splice(index,1);
+      setTodos(temp);
+
+    }).catch(err=>{
+      return MySwal.fire({
+        icon: 'error',
+        title: '刪除失敗',
+      })
+    })
   }
 
   function removeCompletedAll(e){
     e.preventDefault();
-    setTodos(todos.filter(item=>!item.completed));
+    setTodos(todos.filter(item=>!item.completed_at));
   }
 
   // toggle todo completed
   function toggleTodo(todo){
-    todo.completed = !todo.completed;
-    setTodos([...todos]);
+
+    axios.patch(`${url}/${todo.id}/toggle`,{},{headers}).then((res)=>{
+      console.log(res.data);
+      const index = todos.findIndex(item=>item.id === todo.id);
+      todos[index] = res.data;
+      setTodos(todos);
+    }).catch(err=>{
+      console.log(err);
+      return MySwal.fire({
+        icon: 'error',
+        title: '狀態切換失敗',
+      })
+    })
   }
 
   // change tab state
@@ -94,7 +119,7 @@ function Home() {
             className="todoList_input"
             type="checkbox"
             value="true"
-            defaultChecked={todo.completed}
+            defaultChecked={todo.completed_at}
             onChange={()=>toggleTodo(todo)}
           />
           <span>{todo.content}</span>
@@ -118,12 +143,12 @@ function Home() {
         })
       } else if(tabState === 'undone') {
         // 待完成
-        todolist = todos.filter(item=>!item.completed).map((item, i)=>{
+        todolist = todos.filter(item=>!item.completed_at).map((item, i)=>{
           return <TodoItem key={i} todo={item} />
         })
       } else {
         // 已完成
-        todolist = todos.filter(item=>item.completed).map((item, i)=>{
+        todolist = todos.filter(item=>item.completed_at).map((item, i)=>{
           return <TodoItem key={i} todo={item} />
         })
       }
