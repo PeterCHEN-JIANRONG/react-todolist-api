@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { useAuth } from "./Context";
 import Swal from 'sweetalert2';
@@ -9,7 +9,8 @@ const MySwal = withReactContent(Swal);
 
 function Home() {
   const url = 'https://todoo.5xcamp.us/todos';
-  const { token } = useAuth();
+  const { token, setToken } = useAuth();
+  const navigate = useNavigate();
   const [todos, setTodos]= useState([]);
   const [value,setValue] = useState(""); // todo input
   const [tabState,setTabState] = useState("all"); // tab state
@@ -176,7 +177,18 @@ function Home() {
     return <li className="text-danger fw-bold">目前尚無代辦事項</li>
   }
 
-  
+  const logout = (e) => {
+    e.preventDefault();
+    
+    const url = 'https://todoo.5xcamp.us/users/sign_out';
+    axios.delete(url, {headers}).then(res=>{
+      setToken(null);
+      navigate('/login');
+    }).catch(err=>{
+      setToken(null);
+      navigate('/login');
+    })
+  }
 
   return (
     <>
@@ -192,7 +204,7 @@ function Home() {
               </a>
             </li>
             <li>
-              <a href="#">登出</a>
+              <a href="#" onClick={logout}>登出</a>
             </li>
           </ul>
         </nav>
@@ -215,7 +227,7 @@ function Home() {
                   { todoListRender() }
                 </ul>
                 <div className="todoList_statistics">
-                  <p> {todos.filter(i=>!i.completed).length} 個待完成項目</p>
+                  <p> {todos.filter(i=>!i.completed_at).length} 個待完成項目</p>
                   <a href="#" onClick={removeCompletedAll}>清除已完成項目</a>
                 </div>
               </div>
