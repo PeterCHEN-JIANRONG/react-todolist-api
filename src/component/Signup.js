@@ -3,15 +3,19 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import constraint from '../services/formRule';
+import { useAuth } from "./Context";
+
 const MySwal = withReactContent(Swal);
 
-const url = 'https://todoo.5xcamp.us/users';
-
 function Signup() {
+  const { setToken } = useAuth();
+  const url = 'https://todoo.5xcamp.us/users';
   const { register, handleSubmit, formState: { errors } } = useForm();
   const onSubmit = (data) => {
     console.log(data)
     const {nickname, password, passwordCheck} = data;
+
     if(nickname.trim() ===''){
       return MySwal.fire({
         icon: 'error',
@@ -32,6 +36,7 @@ function Signup() {
     }
 
     axios.post(url, {user:data}).then(res=>{
+      setToken(res.headers.authorization);
       MySwal.fire({
         icon: 'success',
         title: res.data.message,
@@ -46,35 +51,7 @@ function Signup() {
   };
   console.log(errors);
 
-  // form constraint 約束條件
-  const constraint = {
-    email: {
-      required: { 
-        value: true,
-        message: "此欄位必填寫"
-      },
-      pattern: {
-        value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-        message: "不符合 Email 規則"
-      },
-    },
-    name:{
-      required: { 
-        value: true,
-        message: "此欄位必填寫"
-      },
-    },
-    password:{
-      required: { 
-        value: true,
-        message: "此欄位必填寫"
-      },
-      minLength:{
-        value: 6,
-        message: "密碼至少 6 位數"
-      }  
-    }
-  }
+
 
   return (
     <>
