@@ -10,8 +10,9 @@ const MySwal = withReactContent(Swal);
 
 function Signup() {
   const { setToken } = useAuth();
-  const url = 'https://todoo.5xcamp.us/users';
   const { register, handleSubmit, formState: { errors } } = useForm();
+  const url = 'https://todoo.5xcamp.us/users';
+
   const onSubmit = (data) => {
     console.log(data)
     const {nickname, password, passwordCheck} = data;
