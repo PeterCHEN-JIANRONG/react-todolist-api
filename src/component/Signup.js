@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+const MySwal = withReactContent(Swal);
 
 const url = 'https://todoo.5xcamp.us/users';
 
@@ -10,27 +13,36 @@ function Signup() {
     console.log(data)
     const {nickname, password, passwordCheck} = data;
     if(nickname.trim() ===''){
-      console.log('姓名不可空白')
-      return
+      return MySwal.fire({
+        icon: 'error',
+        title: '姓名不可空白',
+      });
     }
-    if(password.trim() ==='' || passwordCheck.trim() === ''){
-      console.log('密碼不可空白')
-      return
+    if(password.trim() ===''){
+      return MySwal.fire({
+        icon: 'error',
+        title: '密碼不可空白',
+      });
     }
     if(password !== passwordCheck){
-      console.log('密碼不一致')
-      return
+      return MySwal.fire({
+        icon: 'error',
+        title: '密碼不一致',
+      });
     }
 
     axios.post(url, {user:data}).then(res=>{
-      console.log(res.data);
-      console.log(res.data.message);
+      MySwal.fire({
+        icon: 'success',
+        title: res.data.message,
+      });
     }).catch(err=>{
-      console.log(err.response.data.message);
-      console.log(err.response.data.error[0]?err.response.data.error[0]:'');
+      MySwal.fire({
+        icon: 'error',
+        title: err.response.data.message? err.response.data.message:'註冊失敗',
+        text: err.response.data.error[0]?err.response.data.error[0]:'',
+      });
     })
-    
-
   };
   console.log(errors);
 
