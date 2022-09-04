@@ -1,20 +1,21 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import constraint from '../services/formRule';
 import { useAuth } from "./Context";
-
 const MySwal = withReactContent(Swal);
+
 
 function Signup() {
   const { setToken } = useAuth();
+  const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm();
   const url = 'https://todoo.5xcamp.us/users';
 
   const onSubmit = (data) => {
-    console.log(data)
+    // console.log(data)
     const {nickname, password, passwordCheck} = data;
 
     if(nickname.trim() ===''){
@@ -42,6 +43,7 @@ function Signup() {
         icon: 'success',
         title: res.data.message,
       });
+      navigate('/');
     }).catch(err=>{
       MySwal.fire({
         icon: 'error',
@@ -50,7 +52,7 @@ function Signup() {
       });
     })
   };
-  console.log(errors);
+  // console.log(errors);
 
 
 

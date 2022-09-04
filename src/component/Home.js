@@ -1,29 +1,65 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from 'axios';
+import { useAuth } from "./Context";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+const MySwal = withReactContent(Swal);
 
 
 function Home() {
-  const _url = 'https://todoo.5xcamp.us/todos';
+  const url = 'https://todoo.5xcamp.us/todos';
+  const { token } = useAuth();
   const [todos, setTodos]= useState([]);
   const [value,setValue] = useState(""); // todo input
   const [tabState,setTabState] = useState("all"); // tab state
+
+  const headers = {
+    Authorization: token
+  }
   
+  useEffect(()=>{
+    getTodo();
+  },[]);
+
+
+  function getTodo(){
+    axios.get(url, {headers}).then((res)=>{
+      setTodos(res.data.todos);
+    }).catch(err=>{
+      return MySwal.fire({
+        icon: 'error',
+        title: '取得失敗',
+      })
+    })
+  }
+
   function addTodo(e){
     e.preventDefault();
     if(value.trim() === "") {
       setValue('');
-      return
+      document.getElementById("todoInput").focus();
+
+      return MySwal.fire({
+        icon: 'error',
+        title: '不可為空白',
+      });
     };
-    const newTodo = {
-      id: Date.now(),
+
+    const todo = {
       content: value.trim(),
-      completed: false,
     }
-    // console.log(newTodo);
-    setTodos([newTodo, ...todos]);
-    setValue('');
-    document.getElementById("todoInput").focus();
+    
+    axios.post(url,{todo},{headers}).then((res)=>{
+      getTodo();
+      setValue('');
+      document.getElementById("todoInput").focus();
+    }).catch((err)=>{
+      return MySwal.fire({
+        icon: 'error',
+        title: '新增失敗',
+      })
+    });
   }
 
   function removeTodo(e, todo){
